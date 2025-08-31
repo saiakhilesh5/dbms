@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import db from "@/lib/db";
+import sql from "@/db/index"; // PostgreSQL connection
 import { IUser } from "@/types/user";
 
 export interface AddPostRequestBody {
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
     const values = [user.userId, user.firstName, user.lastName, user.userImage, text, imageUrl || null];
 
-    const { rows } = await db.query(query, values);
+    const rows = await sql.query(query, values);
 
     return NextResponse.json({ message: "Post created successfully", post: rows[0] });
   } catch (error) {
@@ -27,8 +27,8 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const { rows } = await db.query(`SELECT * FROM posts ORDER BY created_at DESC`);
-    return NextResponse.json(rows);
+    const posts = await sql.query(`SELECT * FROM posts ORDER BY created_at DESC`);
+    return NextResponse.json(posts);
   } catch (error) {
     return NextResponse.json({ error: "Error fetching posts" }, { status: 500 });
   }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import db from "@/lib/db";
+import sql from "@/db/index"; // PostgreSQL connection
 
 export interface DeleteCommentRequestBody {
   userId: string;
@@ -14,7 +14,7 @@ export async function DELETE(
 
   try {
     // Check if comment exists and belongs to the user
-    const { rows } = await db.query(
+    const rows = await sql.query(
       `SELECT * FROM comments WHERE id = $1 AND post_id = $2`,
       [comment_id, post_id]
     );
@@ -24,7 +24,7 @@ export async function DELETE(
     if (comment.user_id !== userId) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 
     // Delete the comment
-    await db.query(`DELETE FROM comments WHERE id = $1`, [comment_id]);
+    await sql.query(`DELETE FROM comments WHERE id = $1`, [comment_id]);
 
     return NextResponse.json({ message: "Comment deleted successfully" });
   } catch (error) {

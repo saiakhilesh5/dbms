@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import db from "@/lib/db";
+import sql from "@/db/index"; // PostgreSQL connection
 import { IUser } from "@/types/user";
 
 export interface AddCommentRequestBody {
@@ -15,7 +15,7 @@ export async function GET(
 
   try {
     // Fetch all comments for the given post
-    const { rows: comments } = await db.query(
+    const comments = await sql.query(
       `SELECT c.id, c.text, c.created_at, u.id AS user_id, u.first_name, u.last_name, u.image_url
        FROM comments c
        JOIN users u ON c.user_id = u.id
@@ -56,14 +56,14 @@ export async function POST(
 
   try {
     // Insert new comment into PostgreSQL
-    const result = await db.query(
+    const result = await sql.query(
       `INSERT INTO comments (post_id, user_id, text, created_at)
        VALUES ($1, $2, $3, NOW())
        RETURNING id, text, created_at`,
       [post_id, user.userId, text]
     );
 
-    const comment = result.rows[0];
+    const comment = result[0];
 
     const formattedComment = {
       _id: comment.id,

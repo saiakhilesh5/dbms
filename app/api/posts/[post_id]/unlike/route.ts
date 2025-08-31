@@ -1,4 +1,4 @@
-import pool from "@/lib/db";
+import sql from "@/db/index"; // PostgreSQL connection
 import { NextResponse } from "next/server";
 
 export interface UnlikePostRequestBody {
@@ -14,16 +14,16 @@ export async function POST(
     const { userId }: UnlikePostRequestBody = await request.json();
 
     // Check if post exists
-    const postCheck = await pool.query(
+    const postCheck = await sql.query(
       `SELECT * FROM posts WHERE id = $1`,
       [post_id]
     );
-    if (postCheck.rows.length === 0) {
+    if (postCheck.length === 0) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
     // Remove the like if it exists
-    await pool.query(
+    await sql.query(
       `DELETE FROM likes WHERE post_id = $1 AND user_id = $2`,
       [post_id, userId]
     );

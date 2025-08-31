@@ -1,4 +1,4 @@
-import pool from "@/lib/db";
+import sql from "@/db/index"; // PostgreSQL connection
 import { NextResponse } from "next/server";
 
 export interface DeletePostRequestBody {
@@ -13,7 +13,7 @@ export async function GET(
   try {
     const { post_id } = await params;
 
-    const { rows } = await pool.query(
+    const rows = await sql.query(
       `SELECT * FROM posts WHERE id = $1`,
       [post_id]
     );
@@ -42,7 +42,7 @@ export async function DELETE(
     const { userId }: DeletePostRequestBody = await request.json();
 
     // Fetch post
-    const { rows } = await pool.query(
+    const rows = await sql.query(
       `SELECT * FROM posts WHERE id = $1`,
       [post_id]
     );
@@ -58,7 +58,7 @@ export async function DELETE(
     }
 
     // Delete the post
-    await pool.query(`DELETE FROM posts WHERE id = $1`, [post_id]);
+    await sql.query(`DELETE FROM posts WHERE id = $1`, [post_id]);
 
     return NextResponse.json({ message: "Post deleted successfully" });
   } catch (error: any) {

@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { currentUser } from "@clerk/nextjs/server";
 import generateSASToken, { containerName } from "@/lib/generateSASToken";
-import db from "@/lib/db"; // PostgreSQL connection
+import sql from "@/db/index"; // PostgreSQL connection // PostgreSQL connection
 import { AddPostRequestBody } from "@/app/api/posts/route";
 import { BlobServiceClient } from "@azure/storage-blob";
 
@@ -47,7 +47,7 @@ export default async function createPostAction(formData: FormData) {
     `;
     const values = [userId, firstName, lastName, userImage, postInput, image_url];
 
-    await db.query(query, values);
+    await sql.query(query, values);
 
     revalidatePath("/");
   } catch (error: any) {
