@@ -1,7 +1,7 @@
 import PostFeed from "@/components/PostFeed";
 import PostForm from "@/components/PostForm";
 import UserInformation from "@/components/UserInformation";
-import pool from "@/lib/db"; // PostgreSQL connection
+import sql from "@/db/index"; // PostgreSQL connection
 import AuthWrapper from "@/components/AuthWrapper";
 
 export const revalidate = 0;
@@ -16,10 +16,18 @@ export default async function Home() {
 
 async function AuthenticatedHome() {
   // Fetch all posts from PostgreSQL
-  const { rows: posts } = await pool.query(`
+  const rawPosts = await sql.query(`
     SELECT * FROM posts
     ORDER BY created_at DESC
   `);
+
+  // Map raw SQL result to IPost[]
+  const posts = rawPosts.map((post: any) => ({
+    id: post.id,
+    text: post.text,
+    createdAt: post.created_at,
+    user: post.user, // Adjust this if you need to fetch/join user info separately
+  }));
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-5 sm:px-5">
